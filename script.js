@@ -1,148 +1,204 @@
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const message = document.getElementById("message");
-const cat = document.getElementById("cat");
-
-let noCount = 0;
-let yesScale = 1;
-
-const texts = [
-
-"Are you sure?",
-
-"Really sure?",
-
-"Please?",
-
-"Think again...",
-
-"Pretty please?",
-
-"Don't break my heart 💔",
-
-"Last chance!",
-
-"You know you want to.",
-
-"Fine... 😢"
-
+/* =========================================================
+   PIXEL CAT ART
+   half-grid (8 cols) mirrored into a 16-col symmetric cat
+   . = transparent  K = outline  W = white fur
+   B = eye          P = pink blush / nose / paw
+========================================================= */
+const catHalf = [
+  "........",
+  "...K....",
+  "..KWK...",
+  ".KWWK...",
+  ".KWWWWK.",
+  "KWWWWWWW",
+  "KWWWBWWW",
+  "KWWWWPWW",
+  "KWWWWWPP",
+  "KWWWWWWW",
+  ".KWWWWWW",
+  "..KWWWWW",
+  "..KWPWWW",
+  "..KKWWWK",
 ];
 
-yesBtn.addEventListener("click",celebrate);
+const colorMap = {
+  ".": "transparent",
+  "K": "#3a1530",
+  "W": "#ffffff",
+  "B": "#241019",
+  "P": "#ff8fc0",
+};
 
-noBtn.addEventListener("click",()=>{
+function buildCat() {
+  const container = document.getElementById("pixelCat");
+  const rows = catHalf.length;
+  const cols = catHalf[0].length * 2;
+  container.style.gridTemplateColumns = `repeat(${cols}, 8px)`;
+  container.style.gridTemplateRows = `repeat(${rows}, 8px)`;
+  container.style.width = `${cols * 8}px`;
+  container.style.height = `${rows * 8}px`;
 
-    noCount++;
+  catHalf.forEach((row) => {
+    const fullRow = row + row.split("").reverse().join("");
+    fullRow.split("").forEach((ch) => {
+      const px = document.createElement("div");
+      px.className = "pixel";
+      px.style.background = colorMap[ch] || "transparent";
+      container.appendChild(px);
+    });
+  });
+}
+buildCat();
 
-    yesScale*=1.2;
+/* =========================================================
+   SPARKLES
+========================================================= */
+function spawnSparkles(count = 28) {
+  const layer = document.getElementById("sparkles");
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.textContent = Math.random() > 0.5 ? "✦" : "✧";
+    s.style.left = `${Math.random() * 100}%`;
+    s.style.top = `${Math.random() * 100}%`;
+    s.style.animationDelay = `${Math.random() * 2.4}s`;
+    s.style.fontSize = `${8 + Math.random() * 10}px`;
+    layer.appendChild(s);
+  }
+}
+spawnSparkles();
 
-    yesBtn.style.transform=`scale(${yesScale})`;
+/* =========================================================
+   CONFETTI
+========================================================= */
+function launchConfetti() {
+  const layer = document.getElementById("confetti");
+  const colors = ["#ff2f92", "#ff5fae", "#ffd6ea", "#ffffff", "#ff9ecf", "#ffb6dd"];
+  const pieces = 130;
 
-    let shrink=Math.max(.18,1-noCount*0.08);
-
-    noBtn.style.transform=`scale(${shrink})`;
-
-    let x=(Math.random()*180)-90;
-
-    let y=(Math.random()*120)-60;
-
-    noBtn.style.left=x+"px";
-
-    noBtn.style.top=y+"px";
-
-    if(noCount<=texts.length){
-
-        message.textContent=texts[noCount-1];
-
-    }
-
-    if(noCount>=12){
-
-        message.innerHTML="I'll take that as a YES ❤️";
-
-        celebrate();
-
-    }
-
-});
-
-function celebrate(){
-
-    message.innerHTML="Yay!! ❤️";
-
-    cat.classList.add("happy");
-
-    confettiBurst();
-
+  for (let i = 0; i < pieces; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    const size = 6 + Math.random() * 8;
+    piece.style.width = `${size}px`;
+    piece.style.height = `${size * 0.5}px`;
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    const duration = 2.2 + Math.random() * 1.8;
+    piece.style.animationDuration = `${duration}s`;
+    piece.style.animationDelay = `${Math.random() * 0.4}s`;
+    layer.appendChild(piece);
+    setTimeout(() => piece.remove(), (duration + 0.5) * 1000);
+  }
 }
 
-/* ----------------------- */
-/* CONFETTI */
-/* ----------------------- */
+/* =========================================================
+   YES / NO INTERACTION LOGIC
+========================================================= */
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const buttonRow = document.getElementById("buttonRow");
+const taunt = document.getElementById("taunt");
+const cat = document.getElementById("cat");
+const frame = document.getElementById("frame");
+const question = document.getElementById("question");
 
-const canvas=document.getElementById("confetti");
-const ctx=canvas.getContext("2d");
+const YES_BASE_FONT = 13;
+const YES_BASE_PAD_V = 14;
+const YES_BASE_PAD_H = 22;
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+const NO_BASE_FONT = 11;
+const NO_BASE_PAD_V = 12;
+const NO_BASE_PAD_H = 18;
 
-window.addEventListener("resize",()=>{
+// Start the YES button a little smaller than its normal size
+let yesScale = 0.72;
+let noScale = 1;
+let noClicks = 0;
+let answered = false;
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+const taunts = [
+  "Are you sure?",
+  "Really sure?",
+  "Please?",
+  "Think again...",
+  "Pretty please?",
+  "Don't break my heart 💔",
+  "Last chance!",
+  "You know you want to.",
+  "Fine... 😢",
+];
 
+const MAX_NO_CLICKS = 12;
+const MAX_YES_SCALE = 5.2;
+
+function applyYesSize() {
+  const f = Math.min(yesScale, MAX_YES_SCALE);
+  yesBtn.style.fontSize = `${YES_BASE_FONT * f}px`;
+  yesBtn.style.padding = `${YES_BASE_PAD_V * f}px ${YES_BASE_PAD_H * f}px`;
+}
+
+function applyNoSize() {
+  const f = Math.max(noScale, 0.22);
+  noBtn.style.fontSize = `${NO_BASE_FONT * f}px`;
+  noBtn.style.padding = `${NO_BASE_PAD_V * f}px ${NO_BASE_PAD_H * f}px`;
+}
+
+function moveNoButton() {
+  const rowRect = buttonRow.getBoundingClientRect();
+  const range = 90; // "nearby" jump distance
+  const dx = (Math.random() - 0.5) * range;
+  const dy = (Math.random() - 0.5) * range * 0.7;
+  noBtn.style.position = "relative";
+  noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+}
+
+function setTaunt(text, big = false) {
+  taunt.textContent = text;
+  taunt.classList.toggle("yay", big);
+  taunt.style.animation = "none";
+  // restart pop-in animation
+  void taunt.offsetWidth;
+  taunt.style.animation = "";
+}
+
+function triggerYes(auto = false) {
+  if (answered) return;
+  answered = true;
+
+  noBtn.style.display = "none";
+  question.style.display = "none";
+
+  cat.classList.add("happy");
+  frame.classList.add("happy");
+
+  launchConfetti();
+
+  setTaunt(auto ? "I'll take that as a YES ❤️" : "Yay!! ❤️", true);
+}
+
+yesBtn.addEventListener("click", () => triggerYes(false));
+
+noBtn.addEventListener("click", () => {
+  if (answered) return;
+
+  noClicks++;
+
+  // grow YES ~20%, shrink NO a little
+  yesScale *= 1.2;
+  noScale *= 0.85;
+  applyYesSize();
+  applyNoSize();
+  moveNoButton();
+
+  const msgIndex = Math.min(noClicks - 1, taunts.length - 1);
+  setTaunt(taunts[msgIndex]);
+
+  if (noClicks >= MAX_NO_CLICKS) {
+    setTimeout(() => triggerYes(true), 250);
+  }
 });
 
-function confettiBurst(){
-
-    let pieces=[];
-
-    for(let i=0;i<220;i++){
-
-        pieces.push({
-
-            x:canvas.width/2,
-
-            y:canvas.height/2,
-
-            r:Math.random()*6+4,
-
-            dx:(Math.random()-.5)*12,
-
-            dy:(Math.random()-1)*14,
-
-            c:`hsl(${Math.random()*360},100%,60%)`
-
-        });
-
-    }
-
-    let animation=setInterval(()=>{
-
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-
-        pieces.forEach(p=>{
-
-            p.x+=p.dx;
-
-            p.y+=p.dy;
-
-            p.dy+=.18;
-
-            ctx.fillStyle=p.c;
-
-            ctx.fillRect(p.x,p.y,p.r,p.r);
-
-        });
-
-    },16);
-
-    setTimeout(()=>{
-
-        clearInterval(animation);
-
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    },3000);
-
-}
+// set the initial (smaller) YES size and normal NO size on load
+applyYesSize();
+applyNoSize();
