@@ -315,9 +315,3 @@ body {
     animation: none !important;
   }
 }
-.cat-image {
-  width: 110px;
-  height: 110px;
-  object-fit: contain;
-  image-rendering: pixelated; /* keep the crisp pixel look if it's pixel art */
-}
