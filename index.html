@@ -1,55 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Go Out With Me?</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Pixel Font -->
-    <link href="https://fonts.googlepis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will you give me another chance?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- Floating Clouds -->
-    <div class="cloud cloud1"></div>
-    <div class="cloud cloud2"></div>
-    <div class="cloud cloud3"></div>
+  <!-- floating clouds -->
+  <div class="clouds">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+    <div class="cloud c4"></div>
+  </div>
 
-    <!-- Sparkles -->
-    <div class="sparkles"></div>
+  <!-- sparkles -->
+  <div class="sparkles" id="sparkles"></div>
+  <!-- confetti layer -->
+  <div class="confetti-layer" id="confetti"></div>
 
-    <main class="container">
+  <main class="card">
+    <div class="frame" id="frame">
+      <div class="cat" id="cat">
+        <!-- pixel cat built from box-shadow grid in CSS/JS -->
+        <div class="pixel-cat" id="pixelCat"></div>
+      </div>
+    </div>
 
-        <div id="catBox">
-            <div id="cat">🤍🐱</div>
-        </div>
+    <h1 class="question" id="question">Will you go out<br>with me?</h1>
 
-        <h1>
-            Will you go out with me?
-        </h1>
+    <div class="button-row" id="buttonRow">
+      <button class="btn-yes" id="yesBtn">YES <span class="sparkle-icon">✨</span></button>
+      <button class="btn-no" id="noBtn">No</button>
+    </div>
 
-        <div class="buttons">
+    <p class="taunt" id="taunt"></p>
 
-            <button id="yesBtn">
-                YES ✨
-            </button>
+    <div class="stats">
+      <span class="stat">❤️ <span id="likeCount">233</span></span>
+      <span class="stat">💬 <span id="commentCount">6</span></span>
+    </div>
+  </main>
 
-            <button id="noBtn">
-                No
-            </button>
-
-        </div>
-
-        <p id="message"></p>
-
-    </main>
-
-    <canvas id="confetti"></canvas>
-
-<script src="script.js"></script>
-
+  <script src="script.js"></script>
 </body>
 </html>
