@@ -1,35 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Will You?</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="clouds">
-      <div class="cloud cloud-a"></div>
-      <div class="cloud cloud-b"></div>
-      <div class="cloud cloud-c"></div>
-    </div>
-    <div class="sparkles" id="sparkles"></div>
-    <main class="scene">
-      <section class="card">
-        <div class="cat-frame">
-          <img
-            src="https://www.vecteezy.com/free-vector/pixel-cat"
-          
-            class="cat"
-          />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Go Out With Me?</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Pixel Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Floating Clouds -->
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+
+    <!-- Sparkles -->
+    <div class="sparkles"></div>
+
+    <main class="container">
+
+        <div id="catBox">
+            <div id="cat">🤍🐱</div>
         </div>
-        <h1>Do you want to click yes?</h1>
+
+        <h1>
+            Will you go out with me?
+        </h1>
+
         <div class="buttons">
-          <button class="btn btn-yes" id="yesBtn">Yes</button>
-          <button class="btn btn-no" id="noBtn">No</button>
+
+            <button id="yesBtn">
+                YES ✨
+            </button>
+
+            <button id="noBtn">
+                No
+            </button>
+
         </div>
-        <p class="message" id="message">Please say yes.</p>
-      </section>
+
+        <p id="message"></p>
+
     </main>
-    <script src="script.js"></script>
-  </body>
+
+    <canvas id="confetti"></canvas>
+
+<script src="script.js"></script>
+
+</body>
 </html>
