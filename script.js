@@ -1,98 +1,148 @@
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 const message = document.getElementById("message");
-const cat = document.querySelector(".cat");
-const sparkles = document.getElementById("sparkles");
-
-const messages = [
-  "Are you sure?",
-  "Really sure?",
-  "Please?",
-  "Think again...",
-  "Pretty please?",
-  "Don't break my heart 💔",
-  "Last chance!",
-  "You know you want to.",
-  "Fine... 😢",
-];
+const cat = document.getElementById("cat");
 
 let noCount = 0;
-let completed = false;
+let yesScale = 1;
 
-function createSparkles() {
-  for (let i = 0; i < 24; i += 1) {
-    const sparkle = document.createElement("span");
-    sparkle.className = "sparkle";
-    sparkle.style.left = `${Math.random() * 100}vw`;
-    sparkle.style.top = `${Math.random() * 100}vh`;
-    sparkle.style.animationDelay = `${Math.random() * 2}s`;
-    sparkles.appendChild(sparkle);
-  }
+const texts = [
+
+"Are you sure?",
+
+"Really sure?",
+
+"Please?",
+
+"Think again...",
+
+"Pretty please?",
+
+"Don't break my heart 💔",
+
+"Last chance!",
+
+"You know you want to.",
+
+"Fine... 😢"
+
+];
+
+yesBtn.addEventListener("click",celebrate);
+
+noBtn.addEventListener("click",()=>{
+
+    noCount++;
+
+    yesScale*=1.2;
+
+    yesBtn.style.transform=`scale(${yesScale})`;
+
+    let shrink=Math.max(.18,1-noCount*0.08);
+
+    noBtn.style.transform=`scale(${shrink})`;
+
+    let x=(Math.random()*180)-90;
+
+    let y=(Math.random()*120)-60;
+
+    noBtn.style.left=x+"px";
+
+    noBtn.style.top=y+"px";
+
+    if(noCount<=texts.length){
+
+        message.textContent=texts[noCount-1];
+
+    }
+
+    if(noCount>=12){
+
+        message.innerHTML="I'll take that as a YES ❤️";
+
+        celebrate();
+
+    }
+
+});
+
+function celebrate(){
+
+    message.innerHTML="Yay!! ❤️";
+
+    cat.classList.add("happy");
+
+    confettiBurst();
+
 }
 
-function launchConfetti() {
-  for (let i = 0; i < 28; i += 1) {
-    const piece = document.createElement("div");
-    piece.className = "confetti-piece";
-    piece.style.left = `${Math.random() * 100}vw`;
-    piece.style.top = "-20px";
-    piece.style.background = ["#ff79b0", "#fff", "#ffd166", "#ff6b6b"][i % 4];
-    piece.style.setProperty("--x", `${(Math.random() - 0.5) * 180}px`);
-    document.body.appendChild(piece);
-    setTimeout(() => piece.remove(), 1600);
-  }
+/* ----------------------- */
+/* CONFETTI */
+/* ----------------------- */
+
+const canvas=document.getElementById("confetti");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+window.addEventListener("resize",()=>{
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+});
+
+function confettiBurst(){
+
+    let pieces=[];
+
+    for(let i=0;i<220;i++){
+
+        pieces.push({
+
+            x:canvas.width/2,
+
+            y:canvas.height/2,
+
+            r:Math.random()*6+4,
+
+            dx:(Math.random()-.5)*12,
+
+            dy:(Math.random()-1)*14,
+
+            c:`hsl(${Math.random()*360},100%,60%)`
+
+        });
+
+    }
+
+    let animation=setInterval(()=>{
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        pieces.forEach(p=>{
+
+            p.x+=p.dx;
+
+            p.y+=p.dy;
+
+            p.dy+=.18;
+
+            ctx.fillStyle=p.c;
+
+            ctx.fillRect(p.x,p.y,p.r,p.r);
+
+        });
+
+    },16);
+
+    setTimeout(()=>{
+
+        clearInterval(animation);
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    },3000);
+
 }
-
-function celebrateYes() {
-  if (completed) return;
-  completed = true;
-  document.body.classList.add("accepted");
-  yesBtn.classList.add("huge");
-  noBtn.classList.add("tiny");
-  noBtn.style.display = "none";
-  cat.classList.add("happy");
-  message.textContent = "Yay!! ❤️";
-  launchConfetti();
-}
-
-function handleNoClick() {
-  if (completed) return;
-
-  noCount += 1;
-
-  if (noCount < messages.length) {
-    message.textContent = messages[noCount - 1];
-  } else {
-    message.textContent = "Fine... 😢";
-  }
-
-  const currentScale = 1 + noCount * 0.04;
-  yesBtn.style.transform = `scale(${currentScale})`;
-  yesBtn.classList.add("grow");
-  setTimeout(() => yesBtn.classList.remove("grow"), 180);
-
-  noBtn.style.transform = `scale(${Math.max(0.55, 0.9 - noCount * 0.03)})`;
-  noBtn.classList.add("shrink");
-  setTimeout(() => noBtn.classList.remove("shrink"), 180);
-
-  const rect = yesBtn.getBoundingClientRect();
-  const moveX = (Math.random() - 0.5) * Math.min(180, 24 + noCount * 12);
-  const moveY = (Math.random() - 0.5) * Math.min(120, 20 + noCount * 8);
-  noBtn.style.position = "absolute";
-  noBtn.style.left = `${Math.min(Math.max(rect.left + moveX, 16), window.innerWidth - 92)}px`;
-  noBtn.style.top = `${Math.min(Math.max(rect.top + moveY, 16), window.innerHeight - 60)}px`;
-
-  if (noCount >= 8) {
-    yesBtn.classList.add("huge");
-  }
-
-  if (noCount >= 12) {
-    message.textContent = "I'll take that as a YES ❤️";
-    celebrateYes();
-  }
-}
-
-yesBtn.addEventListener("click", celebrateYes);
-noBtn.addEventListener("click", handleNoClick);
-
-createSparkles();
